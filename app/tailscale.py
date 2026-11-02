@@ -1,8 +1,9 @@
-"""Los dispositivos de la tailnet, de `tailscale status --json` (no necesita root y no cambia nada)."""
+"""El widget Tailscale de Estado: los dispositivos de la tailnet, de `tailscale status --json` (no necesita root y
+no cambia nada). Si el servidor no tiene Tailscale, el widget no sale."""
 import json
 from datetime import datetime
 
-SCRIPT = "tailscale status --json 2>&1"
+SCRIPT = "command -v tailscale >/dev/null || { echo @absent; exit 0; }; tailscale status --json 2>&1"
 NEVER = "0001-01-01"
 
 
@@ -24,6 +25,8 @@ def _device(p: dict, me: bool = False) -> dict:
 
 
 def parse_status(out: str) -> dict:
+    if out.strip() == "@absent":
+        return {"state": "absent", "devices": []}
     try:
         j = json.loads(out)
     except ValueError:

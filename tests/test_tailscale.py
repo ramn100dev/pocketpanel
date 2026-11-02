@@ -1,6 +1,6 @@
 import json
 
-from app.modules.tailscale.tailscale import parse_status
+from app.tailscale import parse_status
 
 
 def test_parse_status():
@@ -20,3 +20,7 @@ def test_parse_status():
 def test_not_running():
     assert parse_status("failed to connect to local tailscaled")["state"] == "error"
     assert parse_status(json.dumps({"BackendState": "Stopped"}))["state"] == "Stopped"
+
+
+def test_absent():
+    assert parse_status("@absent\n") == {"state": "absent", "devices": []}
